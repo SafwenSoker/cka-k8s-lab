@@ -4,19 +4,19 @@ boxes = [
     {
         :name => "kube-control-plane",
         :eth1 => "192.168.56.10",
-        :mem => "4096",
+        :mem => "2048",
         :cpu => "2"
     },
     {
         :name => "kube-node1",
         :eth1 => "192.168.56.11",
-        :mem => "4096",
+        :mem => "2048",
         :cpu => "1"
     },
     {
         :name => "kube-node2",
         :eth1 => "192.168.56.12",
-        :mem => "4096",
+        :mem => "2048",
         :cpu => "1"
 #    },
 #    {
@@ -60,15 +60,20 @@ Vagrant.configure(2) do |config|
     sudo echo 'net.bridge.bridge-nf-call-ip6tables = 1' >> /etc/sysctl.d/kubernetes.conf
     sudo echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.d/kubernetes.conf
     sudo sysctl --system
+
     sudo apt update
     sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >> ~/kubernetes.list
-    sudo mv ~/kubernetes.list /etc/apt/sources.list.d
+
+#    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+#    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" >> ~/kubernetes.list
+#    sudo mv ~/kubernetes.list /etc/apt/sources.list.d
+    echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     sudo apt update
     echo "KUBELET_EXTRA_ARGS=--node-ip="$(ip addr show eth1  | awk '$1 == "inet" { print $2 }' | cut -d/ -f1) | sudo tee /etc/default/kubelet
+
     sudo apt install -y containerd.io
     sudo containerd config default | sudo tee /etc/containerd/config.toml
     sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
@@ -81,7 +86,7 @@ Vagrant.configure(2) do |config|
     cd etcd-${RELEASE}-linux-amd64
     sudo mv etcd etcdctl etcdutl /usr/local/bin 
 
-    sudo apt install -y kubelet=1.27.0-00 kubeadm=1.27.0-00 kubectl=1.27.0-00
+    sudo apt install -y kubelet=1.28.2-1.1 kubeadm=1.28.2-1.1 kubectl=1.28.2-1.1
 
     sudo swapoff -a
     sudo sed -i '/ swap / s/^/#/' /etc/fstab
