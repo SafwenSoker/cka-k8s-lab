@@ -4463,8 +4463,6 @@ spec:
               name: host-local-net-dir
             - mountPath: /host/opt/cni/bin
               name: cni-bin-dir
-            - name: IP_AUTODETECTION_METHOD
-              value: interface=eth1
           securityContext:
             privileged: true
         # This container installs the CNI binaries
