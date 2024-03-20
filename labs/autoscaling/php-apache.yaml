@@ -14,11 +14,6 @@ spec:
       containers:
       - name: php-apache
         image: nginx
-        resources:
-          requests:
-            cpu: "200m"
-          limits:
-            cpu: "500m"
 ---
 apiVersion: v1
 kind: Service
@@ -31,3 +26,4 @@ spec:
   - port: 80
   selector:
     run: php-apache
+  type: NodePort
